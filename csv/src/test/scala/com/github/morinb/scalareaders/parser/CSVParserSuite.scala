@@ -174,4 +174,22 @@ class CSVParserSuite extends FunSuite with Log {
     )
 
   }
+
+  test("many fields with emtpy fields") {
+    println()
+    info("many fields with emtpy fields")
+
+    val result = parse("a;b;;d;e\nA;;C;D;E")
+    assert(result === List(List("a","b","","d","e"), List("A","","C","D","E")))
+  }
+
+  test("specifying separator") {
+    println()
+    info("specifying separator")
+    val parser = new CSVParser(separator = ',')
+
+    val result = parser.parse(new StringReader("a b c,d e f"))
+
+    assert(result === List(List("a b c", "d e f")))
+  }
 }

@@ -29,13 +29,13 @@ import scala.collection.mutable
  * .
  * @author Baptiste Morin
  */
-class CSVParser extends Log {
+class CSVParser(val separator: Char = ';', val quote: Char = '"', val lineEnd: Char = '\n') extends Log {
 
   private[this] var currentState: State = Initial
-  val DOUBLE_QUOTE = '"'
+  val DOUBLE_QUOTE = quote
   val START_COMMENT = '#'
-  val LINE_END = '\n'
-  val SEPARATOR = ';'
+  val LINE_END = lineEnd
+  val SEPARATOR = separator
   private[this] var currentPosition = 0
 
   def reset(): Unit = {
@@ -98,7 +98,7 @@ class CSVParser extends Log {
             case START_COMMENT => log(s"$next is the start comment token")
               setState(Comment)
 
-            case DOUBLE_QUOTE => log(s"Double quote encountered")
+            case DOUBLE_QUOTE => log(s"Quote encountered")
               setState(QuotedRecord)
 
             case SEPARATOR => log(s"separator encountered, starting next item")
@@ -126,7 +126,7 @@ class CSVParser extends Log {
 
             case DOUBLE_QUOTE =>
               if (currentItem.nonEmpty) {
-                log(s"Double quote encountered but not at start/end of record")
+                log(s"Quote encountered but not at start/end of record")
                 store(next)
               } else {
                 setState(QuotedRecord)
@@ -139,11 +139,11 @@ class CSVParser extends Log {
           }
         case QuotedRecord =>
           next match {
-            case DOUBLE_QUOTE => log(s"Double quote encountered, checking next char")
+            case DOUBLE_QUOTE => log(s"Quote encountered, checking next char")
               reader.mark(currentPosition)
               val peek = reader.read().toChar
               peek match {
-                case DOUBLE_QUOTE => log(s"2 double quotes encountered, transforming in double quote ")
+                case DOUBLE_QUOTE => log(s"2 quotes encountered, transforming in double quote ")
                   store(peek)
                   currentPosition += 1 // increment counter
                 case c => log(s"Ending quote")
