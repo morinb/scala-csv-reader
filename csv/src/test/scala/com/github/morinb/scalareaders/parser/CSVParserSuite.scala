@@ -125,8 +125,8 @@ class CSVParserSuite extends FunSuite with Log {
     info("4 fields with spaces")
     val result = parse("   \"a b c \"   ;   \"d e f\"   \n" +
       "   \"ghi\"   ;   \"jkl\"   ")
-    assert(result === List(List("   a b c    ", "   d e f   "),
-      List("   ghi   ", "   jkl   ")))
+    assert(result === List(List("   \"a b c \"   ", "   \"d e f\"   "),
+      List("   \"ghi\"   ", "   \"jkl\"   ")))
   }
 
   test("4 fields with spaces and NL") {
@@ -135,8 +135,7 @@ class CSVParserSuite extends FunSuite with Log {
     val result = parse("  \"a \nb c\"  ;  \"d e\n f\"  \n" +
       "  \" g\nhi \"  ;  \"j\n\"\"kl\"  ")
 
-    assert(result === List(List("  a \nb c  ", "  d e\n f  "),
-      List("   g\nhi   ", "  j\n\"kl  ")))
+    assert(result === List(List("  \"a "),List("b c\"  ", "  \"d e"), List(" f\"  "), List("  \" g"), List("hi \"  ", "  \"j"), List("kl\"  ")))
   }
 
   ignore("char before/after double quote") {
@@ -151,9 +150,9 @@ class CSVParserSuite extends FunSuite with Log {
     println()
     info("complex 1")
 
-    val result = parse("a b \"\"c;\"d\"\"ef\";qsd\n\"g\nhi\";\"j\n\"\"\nkl;zsx")
+    val result = parse("a b \"\"c;\"d\"\"ef\";qsd\n\"g\nhi\";\"j\n\"\"\nkl\";zsx")
     assert(result ===
-      List(List("a b \"\"c","d\nef","qsd"), List("g\nhi", "j\n\"\nkl","zsx"))
+      List(List("a b \"\"c","d\"ef","qsd"), List("g\nhi", "j\n\"\nkl","zsx"))
     )
 
   }

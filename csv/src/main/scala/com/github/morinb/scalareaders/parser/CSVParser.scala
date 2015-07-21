@@ -42,7 +42,7 @@ class CSVParser extends Log {
     }
 
     def endItem(): Unit = {
-      if(currentItem.nonEmpty) {
+      if (currentItem.nonEmpty) {
         currentLine += currentItem.mkString
         currentItem.clear()
       } else {
@@ -51,7 +51,7 @@ class CSVParser extends Log {
     }
 
     def endLine(): Unit = {
-      if(currentLine.nonEmpty) {
+      if (currentLine.nonEmpty) {
         results += currentLine.toList
         currentLine.clear()
       } else {
@@ -72,6 +72,7 @@ class CSVParser extends Log {
     }) {
 
       val next: Char = read.toChar
+      println(s"c='$next'")
       currentPosition += 1
 
       currentState match {
@@ -106,8 +107,13 @@ class CSVParser extends Log {
               endItem()
               endLine()
 
-            case DOUBLE_QUOTE => log(s"Double quote encountered but not at start/end of record")
-              setState(QuotedRecord)
+            case DOUBLE_QUOTE =>
+              if (currentItem.nonEmpty) {
+                log(s"Double quote encountered but not at start/end of record")
+                store(next)
+              } else {
+                setState(QuotedRecord)
+              }
 
             case SEPARATOR => log(s"Separator encountered. Starting next item")
               endItem()
@@ -121,7 +127,7 @@ class CSVParser extends Log {
               val peek = reader.read().toChar
               peek match {
                 case DOUBLE_QUOTE => log(s"2 double quotes encountered, transforming in double quote ")
-                  currentItem += peek
+                  store(peek)
                   currentPosition += 1 // increment counter
                 case c => log(s"Ending quote")
                   setState(Record)
@@ -133,10 +139,10 @@ class CSVParser extends Log {
       }
     }
 
-    if(currentItem.nonEmpty) {
+    if (currentItem.nonEmpty) {
       currentLine += currentItem.mkString
     }
-    if(currentLine.nonEmpty) {
+    if (currentLine.nonEmpty) {
       results += currentLine.toList
     }
 
